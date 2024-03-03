@@ -1,7 +1,17 @@
 ﻿@page "/"
+@inject BenefitsApp.Core.Clients.ISharePointService service;
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>@title</h1>
 
-Welcome to your new app.
+<button onclick="@GetTitle()">Get Title</button>
+@code {
+    private string title = string.Empty;
+
+    async Task GetTitle()
+    {
+        title = await service.GetBenefitsAsync();
+
+    }
+}
