@@ -1,17 +1,4 @@
 ﻿@page "/"
-@inject BenefitsApp.Core.Clients.ISharePointService service;
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
-
-<h1>@title</h1>
-
-<button onclick="@GetTitle()">Get Title</button>
-@code {
-    private string title = string.Empty;
-
-    async Task GetTitle()
-    {
-        title = await service.GetBenefitsAsync();
-
-    }
-}

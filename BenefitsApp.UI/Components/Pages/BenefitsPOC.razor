@@ -1,0 +1,209 @@
+﻿@page "/BenefitsPOC"
+@using PnP.Core.Model.SharePoint
+@rendermode InteractiveServer
+@inject BenefitsApp.Core.Services.ISharePointService service;
+
+
+<PageTitle>Benefits POC</PageTitle>
+
+
+<h1>@title</h1>
+
+<button @onclick="GetTitle">Get Title</button>
+<button @onclick="OnAuthorizeClicked">Authorize</button>
+<button @onclick="GetAvailableFields">Get available fields</button>
+<button @onclick="GetFolders">Get Folders</button>
+<button @onclick="GetSharedDocumentsFolder">Get Shared Documents Folder</button>
+<button @onclick="GetBenefitsFolder">Get Benefits Folder</button>
+<button @onclick="GetShopKzBenefitsFolder">Get Shop.kz (Белый ветер) Benefits Folder</button>
+<button @onclick="GetShopKzBenefitsXlsxDocById">Get Shop.kz (Белый ветер) Benefits Excel Document</button>
+
+
+@if (availableFields?.Length > 0)
+{
+
+    @foreach (var field in availableFields)
+    {
+        <div>
+            Description: @field.Description <br />
+            Title: @field.Title
+        </div>
+        <br />
+    }
+
+}
+@if (folders?.Length > 0)
+{
+
+    @foreach (var folder in folders)
+    {
+        <div>
+            Name: @folder.Name <br />
+            ItemCount: @folder.ItemCount
+            Id: @folder.UniqueId
+        </div>
+        <br />
+    }
+
+}
+
+@if (sharedFolder is not null)
+{
+    <br />
+    <span>Folder name: @sharedFolder.Name</span>
+    <h1>FILES IN FOLDER:</h1>
+    <br />
+    @foreach (var file in sharedFolder.Files)
+    {
+        <div>
+            Name: @file.Name <br />
+            Title: @file.Title <br />
+            Id: @file.UniqueId
+        </div>
+        <br />
+    }
+    <br />
+    <br />
+
+    <h1>FOLDERS IN FOLDER:</h1>
+    <br />
+    @foreach (var folder in sharedFolder.Folders)
+    {
+        <div>
+            Name: @folder.Name <br />
+            ItemCount: @folder.ItemCount
+            Id: @folder.UniqueId
+        </div>
+        <br />
+    }
+
+}
+
+@if (benefitsFolder is not null)
+{
+
+    <br />
+    <span>Folder name: @benefitsFolder.Name</span>
+    <h1>FILES IN FOLDER:</h1>
+    <br />
+    @foreach (var file in benefitsFolder.Files)
+    {
+        <div>
+            Name: @file.Name <br />
+            Title: @file.Title <br />
+            Id: @file.UniqueId
+        </div>
+        <br />
+    }
+    <br />
+    <br />
+
+    <h1>FOLDERS IN FOLDER:</h1>
+    <br />
+    @foreach (var folder in benefitsFolder.Folders)
+    {
+        <div>
+            Name: @folder.Name <br />
+            ItemCount: @folder.ItemCount
+            Id: @folder.UniqueId
+        </div>
+        <br />
+    }
+
+}
+
+@if (shopKzBenefitsFolder is not null)
+{
+
+    <br />
+    <span>Folder name: @shopKzBenefitsFolder.Name</span>
+    <h1>FILES IN FOLDER:</h1>
+    <br />
+    @foreach (var file in shopKzBenefitsFolder.Files)
+    {
+        <div>
+            Name: @file.Name <br />
+            Title: @file.Title <br />
+            Id: @file.UniqueId
+        </div>
+        <br />
+    }
+    <br />
+    <br />
+
+    <h1>FOLDERS IN FOLDER:</h1>
+    <br />
+    @foreach (var folder in shopKzBenefitsFolder.Folders)
+    {
+        <div>
+            Name: @folder.Name <br />
+            ItemCount: @folder.ItemCount
+            Id: @folder.UniqueId
+        </div>
+        <br />
+    }
+
+}
+
+
+@code {
+    private string title = string.Empty;
+    private PnP.Core.Services.PnPContext context;
+    private IFieldCollection availableFields;
+    private IFolderCollection folders;
+    private IFolder sharedFolder;
+    private IFolder benefitsFolder;
+    private IFolder shopKzBenefitsFolder;
+    private IFile shopKzBenefitsXlsxDoc;
+
+    async Task GetTitle()
+    {
+        if (context is null)
+        {
+            title = await service.GetSiteTitleAsync();
+            Console.WriteLine(title);
+        }
+        else
+        {
+            title = await service.GetSiteTitleAsync(context);
+            Console.WriteLine(title);
+        }
+    }
+
+    async Task OnAuthorizeClicked()
+    {
+        context = await service.GetContextAsync();
+    }
+
+    async Task GetAvailableFields()
+    {
+        availableFields = await service.GetAvailableFieldsAsync();
+    }
+
+    async Task GetFolders()
+    {
+        folders = await service.GetAllFoldersAsync();
+    }
+
+    async Task GetSharedDocumentsFolder()
+    {
+        sharedFolder = await service.GetSharedDocumentsFolderByIdAsync();
+    }
+
+    async Task GetBenefitsFolder()
+    {
+        benefitsFolder = await service.GetBenefitsFolderByIdAsync();
+    }
+
+    async Task GetShopKzBenefitsFolder()
+    {
+        shopKzBenefitsFolder = await service.GetShopKzBenefitsFolderByIdAsync();
+    }
+
+    async Task GetShopKzBenefitsXlsxDocById()
+    {
+        shopKzBenefitsXlsxDoc = await service.GetShopKzBenefitsXlsxDocByIdAsync();
+        Console.WriteLine($"Type: {shopKzBenefitsXlsxDoc.GetType()}");
+    }
+
+}

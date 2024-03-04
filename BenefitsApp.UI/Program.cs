@@ -1,8 +1,7 @@
-using BenefitsApp.Core.Clients;
+using BenefitsApp.Core.Services;
 using BenefitsApp.Core.Models;
 using BenefitsApp.UI.Components;
 using PnP.Core.Auth;
-using PnP.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.Configure<SharePointCredentialsOptions>(
-    builder.Configuration.GetSection(SharePointCredentialsOptions.SharePointCredentials));
+builder.Services
+    .Configure<SharePointCredentialsOptions>(
+        builder.Configuration.GetSection(SharePointCredentialsOptions.SharePointCredentials))
+    .Configure<SharepointIDsOptions>(
+        builder.Configuration.GetSection(SharepointIDsOptions.SharepointIds));
 
 builder.Services.AddScoped<ISharePointService, SharePointService>();
 
