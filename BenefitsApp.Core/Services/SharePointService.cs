@@ -97,6 +97,40 @@ namespace BenefitsApp.Core.Services
 
             return await context.Web.GetFileByIdAsync(ShopKzBenefitsXlsxDocId);
         }
+
+        public async Task<string> GetAndSaveKzBenefitsExcelFileByIdAsync()
+        {
+            using var context = await GetContextAsync();
+
+            Guid ShopKzBenefitsXlsxDocId = new Guid(_sharePointIdsOptions.ShopKzBenefitsExcelDocumentId);
+
+            var file = await context.Web.GetFileByIdAsync(ShopKzBenefitsXlsxDocId);
+
+            if (file != null)
+            {
+                using (var stream = await file.GetContentAsync())
+                {
+                    // Генерация уникального имени файла или сохранение с существующим именем
+                    string fileName = "ShopKzBenefits.xlsx";
+                    // Указание пути куда сохранить файл (в данном случае сохраняем в директорию "Files" на сервере)
+                    string filePath = Path.Combine("Temp", fileName);
+
+                    // Создание директории, если она не существует
+                    Directory.CreateDirectory("Temp");
+
+                    // Сохранение файла на сервере
+                    using (var fileStream = File.Create(filePath))
+                    {
+                        await stream.CopyToAsync(fileStream);
+                    }
+
+                    // Возвращаем путь к сохраненному файлу
+                    return filePath;
+                }
+            }
+
+            return string.Empty;
+        }
     }
 
 }

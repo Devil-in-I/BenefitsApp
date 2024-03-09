@@ -14,6 +14,6 @@ namespace BenefitsApp.Core.Services
         public Task<IFolder> GetBenefitsFolderByIdAsync();
         public Task<IFolder> GetShopKzBenefitsFolderByIdAsync();
         public Task<IFile> GetShopKzBenefitsXlsxDocByIdAsync();
-
+        public Task<string> GetAndSaveKzBenefitsExcelFileByIdAsync();
     }
 }

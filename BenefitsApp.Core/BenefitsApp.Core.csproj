@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.0.9" />
     <PackageReference Include="PnP.Core.Auth" Version="1.11.0" />
   </ItemGroup>
 

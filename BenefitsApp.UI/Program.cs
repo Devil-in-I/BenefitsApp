@@ -16,6 +16,7 @@ builder.Services
         builder.Configuration.GetSection(SharepointIDsOptions.SharepointIds));
 
 builder.Services.AddScoped<ISharePointService, SharePointService>();
+builder.Services.AddScoped<IExcelService, ExcelService>();
 
 builder.Services.AddPnPCore(options => options.DefaultAuthenticationProvider = new InteractiveAuthenticationProvider());
 

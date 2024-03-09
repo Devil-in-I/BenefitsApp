@@ -1,7 +1,10 @@
 ﻿@page "/BenefitsPOC"
-@using PnP.Core.Model.SharePoint
 @rendermode InteractiveServer
-@inject BenefitsApp.Core.Services.ISharePointService service;
+@using BenefitsApp.Core.Models
+@using PnP.Core.Model.SharePoint
+@inject IJSRuntime JS
+@inject BenefitsApp.Core.Services.ISharePointService sharepointService
+@inject BenefitsApp.Core.Services.IExcelService excelService
 
 
 <PageTitle>Benefits POC</PageTitle>
@@ -17,7 +20,25 @@
 <button @onclick="GetBenefitsFolder">Get Benefits Folder</button>
 <button @onclick="GetShopKzBenefitsFolder">Get Shop.kz (Белый ветер) Benefits Folder</button>
 <button @onclick="GetShopKzBenefitsXlsxDocById">Get Shop.kz (Белый ветер) Benefits Excel Document</button>
+<button @onclick="GetProductsFromStream">Get products from stream</button>
+<button @onclick="GetProductsFromFile">Get products from file</button>
+<button @onclick="DownloadProductsDocoment">Download benefits excel document</button>
 
+
+<script>
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+    const arrayBuffer = await contentStreamReference.arrayBuffer();
+    const blob = new Blob([arrayBuffer]);
+    const url = URL.createObjectURL(blob);
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = fileName ?? '';
+    anchorElement.click();
+    anchorElement.remove();
+    URL.revokeObjectURL(url);
+  }
+
+</script>
 
 @if (availableFields?.Length > 0)
 {
@@ -145,6 +166,38 @@
 
 }
 
+@if (products is not null && products.Count() > 0)
+{
+    <table>
+        <thead>
+        <th scope="col">Code</th>
+        <th scope="col">Product Name</th>
+        <th scope="col">Retail Price</th>
+        <th scope="col">Dealer Price</th>
+        <th scope="col">Special Price</th>
+        <th scope="col">Warranty Period</th>
+        <th scope="col">Category</th>
+        <th scope="col">Note</th>
+        </thead>
+
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Code</td>
+                    <td>@product.Name</td>
+                    <td>@product.RetailPrice</td>
+                    <td>@product.DealerPrice</td>
+                    <td>@product.SpecialPrice</td>
+                    <td>@product.WarrantyPeriod</td>
+                    <td>@product.Category</td>
+                    <td>@product.Note</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 
 @code {
     private string title = string.Empty;
@@ -155,55 +208,84 @@
     private IFolder benefitsFolder;
     private IFolder shopKzBenefitsFolder;
     private IFile shopKzBenefitsXlsxDoc;
+    private IEnumerable<Product> products;
+
+    async Task GetProductsFromStream()
+    {
+        var benefitsExcelFile = await sharepointService.GetShopKzBenefitsXlsxDocByIdAsync();
+
+        products = await excelService.GetProductsFromExcel(await benefitsExcelFile.GetContentAsync());
+    }
+
+    async Task GetProductsFromFile()
+    {
+        var benefitsExcelFilePath = await sharepointService.GetAndSaveKzBenefitsExcelFileByIdAsync();
+
+        var fileInfo = new FileInfo(benefitsExcelFilePath);
+
+        products = await excelService.GetProductsFromExcel(fileInfo);
+    }
+
+    async Task DownloadProductsDocoment()
+    {
+        var fileName = "benefits.xlsx";
+        var benefitsExcelFile = await sharepointService.GetShopKzBenefitsXlsxDocByIdAsync();
+
+        // Получите содержимое файла
+        var fileStream = await benefitsExcelFile.GetContentAsync();
+
+        using var streamRef = new DotNetStreamReference(fileStream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
 
     async Task GetTitle()
     {
         if (context is null)
         {
-            title = await service.GetSiteTitleAsync();
+            title = await sharepointService.GetSiteTitleAsync();
             Console.WriteLine(title);
         }
         else
         {
-            title = await service.GetSiteTitleAsync(context);
+            title = await sharepointService.GetSiteTitleAsync(context);
             Console.WriteLine(title);
         }
     }
 
     async Task OnAuthorizeClicked()
     {
-        context = await service.GetContextAsync();
+        context = await sharepointService.GetContextAsync();
     }
 
     async Task GetAvailableFields()
     {
-        availableFields = await service.GetAvailableFieldsAsync();
+        availableFields = await sharepointService.GetAvailableFieldsAsync();
     }
 
     async Task GetFolders()
     {
-        folders = await service.GetAllFoldersAsync();
+        folders = await sharepointService.GetAllFoldersAsync();
     }
 
     async Task GetSharedDocumentsFolder()
     {
-        sharedFolder = await service.GetSharedDocumentsFolderByIdAsync();
+        sharedFolder = await sharepointService.GetSharedDocumentsFolderByIdAsync();
     }
 
     async Task GetBenefitsFolder()
     {
-        benefitsFolder = await service.GetBenefitsFolderByIdAsync();
+        benefitsFolder = await sharepointService.GetBenefitsFolderByIdAsync();
     }
 
     async Task GetShopKzBenefitsFolder()
     {
-        shopKzBenefitsFolder = await service.GetShopKzBenefitsFolderByIdAsync();
+        shopKzBenefitsFolder = await sharepointService.GetShopKzBenefitsFolderByIdAsync();
     }
 
     async Task GetShopKzBenefitsXlsxDocById()
     {
-        shopKzBenefitsXlsxDoc = await service.GetShopKzBenefitsXlsxDocByIdAsync();
-        Console.WriteLine($"Type: {shopKzBenefitsXlsxDoc.GetType()}");
+        shopKzBenefitsXlsxDoc = await sharepointService.GetShopKzBenefitsXlsxDocByIdAsync();
     }
 
 }
