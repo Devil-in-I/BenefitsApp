@@ -6,5 +6,6 @@ namespace BenefitsApp.Core.Services
     {
         ValueTask<IEnumerable<Product>> GetProductsFromExcel(Stream excelStream);
         ValueTask<IEnumerable<Product>> GetProductsFromExcel(FileInfo file);
+        IAsyncEnumerable<Product> GetProductsFromExcel2(string path);
     }
 }

@@ -21,6 +21,7 @@
 <button @onclick="GetShopKzBenefitsFolder">Get Shop.kz (Белый ветер) Benefits Folder</button>
 <button @onclick="GetShopKzBenefitsXlsxDocById">Get Shop.kz (Белый ветер) Benefits Excel Document</button>
 <button @onclick="GetProductsFromStream">Get products from stream</button>
+<button @onclick="GetProductsFromStream2">Get products from stream (Using open XML SDK)</button>
 <button @onclick="GetProductsFromFile">Get products from file</button>
 <button @onclick="DownloadProductsDocoment">Download benefits excel document</button>
 
@@ -166,7 +167,7 @@
 
 }
 
-@if (products is not null && products.Count() > 0)
+@if (productsList != null)
 {
     <table>
         <thead>
@@ -181,7 +182,7 @@
         </thead>
 
         <tbody>
-            @foreach (var product in products)
+            @foreach (var product in productsList)
             {
                 <tr>
                     <td>@product.Code</td>
@@ -193,7 +194,8 @@
                     <td>@product.Category</td>
                     <td>@product.Note</td>
                 </tr>
-            }
+@*                 @Console.WriteLine("********* Added table row with {}")
+ *@            }
         </tbody>
     </table>
 }
@@ -209,12 +211,25 @@
     private IFolder shopKzBenefitsFolder;
     private IFile shopKzBenefitsXlsxDoc;
     private IEnumerable<Product> products;
+    private IList<Product> productsList;
+    private IEnumerable<Product> productsAsyncEnumerabe;
 
     async Task GetProductsFromStream()
     {
         var benefitsExcelFile = await sharepointService.GetShopKzBenefitsXlsxDocByIdAsync();
 
         products = await excelService.GetProductsFromExcel(await benefitsExcelFile.GetContentAsync());
+    }
+
+    async Task GetProductsFromStream2()
+    {
+        // var benefitsExcelFilePath = await sharepointService.GetAndSaveKzBenefitsExcelFileByIdAsync();
+        productsList = new List<Product>();
+        await foreach (var item in excelService.GetProductsFromExcel2(@"Temp\ShopKzBenefits.xlsx"))
+        {
+            productsList.Add(item);
+            this.StateHasChanged();
+        }
     }
 
     async Task GetProductsFromFile()

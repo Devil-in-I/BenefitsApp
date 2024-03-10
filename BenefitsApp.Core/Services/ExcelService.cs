@@ -1,4 +1,6 @@
 ﻿using BenefitsApp.Core.Models;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using OfficeOpenXml;
 
 namespace BenefitsApp.Core.Services
@@ -99,6 +101,83 @@ namespace BenefitsApp.Core.Services
             }
 
             return products;
+        }
+
+        public async IAsyncEnumerable<Product> GetProductsFromExcel2(string path)
+        {
+            ArgumentNullException.ThrowIfNull(path);
+            
+            var products = new List<Product>();
+            var currentCategory = string.Empty;
+
+            using (var spreadsheetDocument = SpreadsheetDocument.Open(path, false))
+            {
+                var workbookPart = spreadsheetDocument.WorkbookPart; // Получаем часть книги
+                ArgumentNullException.ThrowIfNull(workbookPart);
+
+                var worksheetPart = workbookPart.WorksheetParts.FirstOrDefault() ?? throw new ArgumentException("Worksheet not found in the document.");
+                var worksheet = worksheetPart.Worksheet;
+                var sheetData = worksheet.GetFirstChild<SheetData>() ?? throw new ArgumentException("Sheet data not found.");
+
+                int rowCount = sheetData.Elements<Row>().Count();
+                var productNumber = 0;
+                // Начинаем с 8-й строки, чтобы пропустить заголовки и строку с категорией
+                for (int row = 7; row <= rowCount; row++)
+                {
+                    var currentRow = sheetData.Elements<Row>().ElementAt(row - 1);
+                    var cellValues = currentRow.Elements<Cell>().Select(cell => GetCellValue(cell, workbookPart)).ToList();
+                    Product product = default;
+                    // Если все 7 столбцов объединены, то это строка с именем категории.
+                    if (string.IsNullOrWhiteSpace(cellValues.ElementAtOrDefault(1)))
+                    {
+                        // Получаем название категории.
+                        currentCategory = cellValues.ElementAtOrDefault(2);
+                        continue;
+                    }
+                    else
+                    {
+                        await Task.Delay(1);
+                        product = new Product
+                        {
+                            Code = cellValues.ElementAtOrDefault(1) ?? throw new ArgumentException("Code cell was null."),
+                            Name = cellValues.ElementAtOrDefault(2) ?? throw new ArgumentException("Name cell was null."),
+                            RetailPrice = decimal.Parse(cellValues.ElementAtOrDefault(3) ?? "0"),
+                            DealerPrice = decimal.Parse(cellValues.ElementAtOrDefault(4) ?? "0"),
+                            SpecialPrice = decimal.Parse(cellValues.ElementAtOrDefault(5) ?? "0"),
+                            WarrantyPeriod = int.Parse(cellValues.ElementAtOrDefault(6) ?? "0"),
+                            Note = cellValues.ElementAtOrDefault(7),
+                            Category = currentCategory ?? throw new ArgumentException("Category was null.")
+                        };
+
+                        //products.Add(product);
+                        productNumber++;
+                        Console.WriteLine($"*********** Added product #{productNumber}: {product.Name} - CODE:{product.Code}");
+                    }
+                    yield return product;
+                }
+            }
+
+            //return products;
+        }
+
+
+        private static string GetCellValue(Cell cell, WorkbookPart workbookPart)
+        {
+            if (cell == null || cell.CellValue == null)
+                return null;
+
+            string value = cell.CellValue.InnerText;
+
+            if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
+            {
+                var sharedStringTablePart = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+                if (sharedStringTablePart != null)
+                {
+                    value = sharedStringTablePart.SharedStringTable.ElementAt(int.Parse(value)).InnerText;
+                }
+            }
+
+            return value;
         }
     }
 }
