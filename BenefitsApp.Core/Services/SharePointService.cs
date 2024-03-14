@@ -22,10 +22,10 @@ namespace BenefitsApp.Core.Services
             _sharePointIdsOptions = sharePointIdsOptions.Value;
         }
 
-        public async Task<PnPContext> GetContextAsync()
+        public async Task<PnPContext> GetContextAsync(CancellationToken cancellationToken = default)
         {
             // Use the PnPContextFactory to get a PnPContext
-            return await _pnpContextFactory.CreateAsync(new Uri(_sharePointCredentialsOptions.SiteUrl));
+            return await _pnpContextFactory.CreateAsync(new Uri(_sharePointCredentialsOptions.SiteUrl), cancellationToken);
         }
 
         public async Task<IFieldCollection> GetAvailableFieldsAsync()

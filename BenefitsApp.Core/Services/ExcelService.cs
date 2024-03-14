@@ -126,7 +126,7 @@ namespace BenefitsApp.Core.Services
                 {
                     var currentRow = sheetData.Elements<Row>().ElementAt(row - 1);
                     var cellValues = currentRow.Elements<Cell>().Select(cell => GetCellValue(cell, workbookPart)).ToList();
-                    Product product = default;
+                    Product product = default!;
                     // Если все 7 столбцов объединены, то это строка с именем категории.
                     if (string.IsNullOrWhiteSpace(cellValues.ElementAtOrDefault(1)))
                     {

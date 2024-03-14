@@ -5,7 +5,7 @@ namespace BenefitsApp.Core.Services
 {
     public interface ISharePointService
     {
-        public Task<PnPContext> GetContextAsync();
+        public Task<PnPContext> GetContextAsync(CancellationToken cancellationToken = default);
         public Task<string> GetSiteTitleAsync();
         public Task<string> GetSiteTitleAsync(PnPContext context);
         public Task<IFieldCollection> GetAvailableFieldsAsync();
