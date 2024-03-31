@@ -1,0 +1,44 @@
+﻿@using Radzen.Blazor
+@using BenefitsApp.Core.Services
+@using BenefitsApp.Core.Models
+@inject BenefitsApp.Core.Services.IBenefitsService BenefitsService
+
+<h1>Benefits</h1>
+
+<RadzenDataGrid 
+    @ref=@dataGrid
+    Data="@benefits" TItem="Benefit"
+    AllowFiltering="true" AllowSorting="true" 
+    AllowPaging="true" PagerPosition="PagerPosition.Bottom" PagerHorizontalAlign="HorizontalAlign.Center"
+    PageSizeOptions="@pageSizeOptions"
+    ShowPagingSummary="true"
+    PagingSummaryFormat="@pagingSummaryFormat"
+    Page="@OnPage">
+    <Columns>
+        <RadzenDataGridColumn TItem="Benefit" Property="Code" Title="Code" Sortable="true" />
+        <RadzenDataGridColumn TItem="Benefit" Property="Name" Title="Name" Sortable="true" />
+        <RadzenDataGridColumn TItem="Benefit" Property="RetailPrice" Title="Retail Price" Sortable="true" />
+        <RadzenDataGridColumn TItem="Benefit" Property="DealerPrice" Title="Dealer Price" Sortable="true" />
+        <RadzenDataGridColumn TItem="Benefit" Property="SpecialPrice" Title="Special Price" Sortable="true" />
+        <RadzenDataGridColumn TItem="Benefit" Property="WarrantyPeriod" Title="Warranty Period" Sortable="true" />
+        <RadzenDataGridColumn TItem="Benefit" Property="Category.Name" Title="Category" Sortable="true" />
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    IList<Benefit> benefits = new List<Benefit>();
+
+    string pagingSummaryFormat = "Displaying page {0} of {1} <b>(total {2} records)</b>";
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+    RadzenDataGrid<Benefit> dataGrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        benefits = await BenefitsService.GetAllBenefitsAsync();
+    }
+
+    void OnPage(PagerEventArgs args)
+    {
+        //
+    }
+}

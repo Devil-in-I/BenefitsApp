@@ -1,7 +1,7 @@
+using BenefitsApp.Core.Data;
 using BenefitsApp.Core.Services;
-using BenefitsApp.Core.Models;
 using BenefitsApp.UI.Components;
-using PnP.Core.Auth;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,16 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services
-    .Configure<SharePointCredentialsOptions>(
-        builder.Configuration.GetSection(SharePointCredentialsOptions.SharePointCredentials))
-    .Configure<SharepointIDsOptions>(
-        builder.Configuration.GetSection(SharepointIDsOptions.SharepointIds));
+builder.Services.AddScoped<IBenefitsService, BenefitsService>();
+builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 
-builder.Services.AddScoped<ISharePointService, SharePointService>();
-builder.Services.AddScoped<IExcelService, ExcelService>();
-
-builder.Services.AddPnPCore(options => options.DefaultAuthenticationProvider = new InteractiveAuthenticationProvider());
+builder.Services.AddDbContext<BenefitsDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTrackingWithIdentityResolution);
+});
 
 var app = builder.Build();
 
