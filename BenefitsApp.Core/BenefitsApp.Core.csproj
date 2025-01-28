@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.1" />
-    <PackageReference Include="EPPlus" Version="7.0.9" />
-    <PackageReference Include="PnP.Core.Auth" Version="1.11.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
+    <PackageReference Include="MongoDB.Driver" Version="3.0.0" />
+    <PackageReference Include="MongoDB.EntityFrameworkCore" Version="8.2.0" />
+    <PackageReference Include="Radzen.Blazor" Version="4.29.1" />
   </ItemGroup>
 
 </Project>

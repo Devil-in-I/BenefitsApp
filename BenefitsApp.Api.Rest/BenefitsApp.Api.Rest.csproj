@@ -4,8 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>33262695-56a7-498e-8ffa-a93a8da1dbea</UserSecretsId>
+    <UserSecretsId>e4c8a59e-de2e-4381-bea1-68ce0fbdadbb</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BenefitsApp.Core\BenefitsApp.Core.csproj" />
