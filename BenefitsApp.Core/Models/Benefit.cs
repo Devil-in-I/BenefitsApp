@@ -1,24 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
-namespace BenefitsApp.Core.Models
+namespace BenefitsApp.Core.Models;
+
+[Collection("Products")]
+public class Benefit
 {
-    public class Benefit
-    {
-        [Key]
-        public required string Code { get; set; }
+    [BsonId]
+    public required ObjectId Id { get; set; }
 
-        public required string Name { get; set; }
+    [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
+    public required int Code { get; set; }
 
-        public decimal RetailPrice { get; set; }
+    public required string Name { get; set; }
 
-        public decimal DealerPrice { get; set; }
+    public decimal RetailPrice { get; set; }
 
-        public decimal SpecialPrice { get; set; }
+    public decimal DealerPrice { get; set; }
 
-        public int WarrantyPeriod { get; set; }
+    public decimal SpecialPrice { get; set; }
 
-        public string? Note { get; set; }
+    public int? WarrantyPeriod { get; set; }
 
-        public required Category Category { get; set; }
-    }
+    public string? Note { get; set; }
+
+    public required string CategoryName { get; set; }
 }

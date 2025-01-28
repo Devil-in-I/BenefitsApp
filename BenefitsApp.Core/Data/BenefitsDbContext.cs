@@ -6,19 +6,18 @@ namespace BenefitsApp.Core.Data
     /// <summary>
     /// Read-only database context to fetch Benefits from database.
     /// </summary>
-    public class BenefitsDbContext : DbContext
+    public class BenefitsDbContext(DbContextOptions options) : DbContext(options)
     {
-        public BenefitsDbContext(DbContextOptions options) : base(options)
-        {
-        }
-
         public DbSet<Benefit> Benefits { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        //public DbSet<Category> Categories { get; set; }
 
-        public override int SaveChanges()
+        public override int SaveChanges() => throw new InvalidOperationException("This context is read-only.");
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            throw new InvalidOperationException("This context is read-only.");
-        }
+            base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Benefit>();
+        }
     }
 }

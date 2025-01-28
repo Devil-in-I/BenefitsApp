@@ -1,0 +1,9 @@
+@BenefitsApp.Api.Rest_HostAddress = http://localhost:5212
+
+GET {{BenefitsApp.Api.Rest_HostAddress}}/benefits/
+Accept: application/json
+
+###
+
+GET {{BenefitsApp.Api.Rest_HostAddress}}/benefits/count/
+Accept: application/json
